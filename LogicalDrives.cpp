@@ -38,7 +38,6 @@ void LogicalDrives::findDrives() {
 			UINT drive_type{ GetDriveTypeW(drive_root_path) };
 
 
-
 		};
 	}
 
