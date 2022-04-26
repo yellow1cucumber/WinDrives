@@ -12,7 +12,6 @@
 #endif // WINDRIVES_EXPORTS
 
 
-
 class WINDRIVES_API DriveException {
 public:
 	explicit DriveException(const DWORD error_code) noexcept
