@@ -2,13 +2,17 @@
 #include <Windows.h>
 #include <string>
 #include <iostream>
-#include <cctype>
+
+#ifdef WINDRIVES_EXPORTS
+#define WINDRIVES_API __declspec(dllexport)
+#else
+#define WINDRIVES_API __declspec(dllimport)
+#endif // WINDRIVES_DLL
 
 
-typedef unsigned long ulint;
-
-class Volume
+class WINDRIVES_API Volume
 {
+	typedef unsigned long ulint;
 public:
 	explicit Volume(const LPWSTR root_path,
 					const LPWSTR volume_name,
@@ -27,7 +31,7 @@ public:
 
 	bool operator==(const Volume&) noexcept;
 
-	~Volume() noexcept {};
+	~Volume() noexcept;
 
 	const wchar_t* rootPath() const noexcept;
 	const wchar_t* volumeName() const noexcept;

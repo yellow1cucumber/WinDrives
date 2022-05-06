@@ -1,4 +1,7 @@
+#include "pch.h"
 #include "Volume.h"
+
+typedef unsigned long ulint;
 
 Volume::Volume(	const LPWSTR root_path,
 				const LPWSTR volume_name,
@@ -101,9 +104,9 @@ bool Volume::operator==(const Volume& other) noexcept {
 Volume::~Volume() noexcept {
 	root_path = nullptr;
 	volume_name = nullptr;
-	serial_number = NULL;
-	max_component_len = NULL;
-	file_system_flags = NULL;
+	serial_number = 0;
+	max_component_len = 0;
+	file_system_flags = 0;
 
 	delete root_path;
 	delete volume_name;

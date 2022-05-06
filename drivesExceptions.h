@@ -5,8 +5,13 @@
 #include <exception>
 #include <cstdlib>
 
+#ifdef WINDRIVES_EXPORTS
+#define WINDRIVES_API __declspec(dllexport)
+#else
+#define WINDRIVES_API __declspec(dllimport)
+#endif // WINDRIVES_DLL
 
-class DriveException {
+class WINDRIVES_API DriveException {
 public:
 	explicit DriveException(const DWORD error_code) noexcept
 		: error_code{ error_code } {};
@@ -40,7 +45,7 @@ protected:
 	DWORD error_code{ NULL };
 };
 
-class BadDriveSearch : public DriveException {
+class WINDRIVES_API BadDriveSearch : public DriveException {
 public:
 	explicit BadDriveSearch(const DWORD error_code, const wchar_t* error_description) noexcept : 
 		DriveException{ error_code }, error_description { error_description } {};

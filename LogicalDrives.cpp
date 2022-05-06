@@ -1,3 +1,4 @@
+#include "pch.h"
 #include "LogicalDrives.h"
 
 
@@ -10,7 +11,7 @@ LogicalDrives::~LogicalDrives() noexcept {
 }
 
 void LogicalDrives::printInfo() {
-	for (const Volume vol : DRIVES) {
+	for (const Volume vol : this->DRIVES) {
 		vol.printInfo();
 	}
 }
@@ -28,9 +29,9 @@ void LogicalDrives::findDrives() {
 	for (LPWSTR drive_root_path : buffer) {
 
 		LPWSTR volume_name[MAX_PATH];
-		LPDWORD serial_number;
-		LPDWORD max_component_len;
-		LPDWORD fs_flags;
+		LPDWORD serial_number = nullptr;
+		LPDWORD max_component_len = nullptr;
+		LPDWORD fs_flags = nullptr;
 		LPWSTR fs_name[MAX_PATH];
 
 		if (GetVolumeInformationW(	drive_root_path,
@@ -51,5 +52,5 @@ void LogicalDrives::findDrives() {
 }
 
 const wchar_t* LogicalDrives::detectDriveType(const UINT drive_type_code) {
-	return types[drive_type_code];
+	return types[drive_type_code].c_str();
 }
