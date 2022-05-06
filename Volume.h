@@ -1,22 +1,24 @@
 #pragma once
 #include <Windows.h>
 #include <string>
+#include <iostream>
+#include <cctype>
 
-#ifdef WINDRIVES_EXPORTS
-#define WINDRIVES_API __declspec(dllexport)
-#else 
-#define WINDRIVES_API __declspec(dllimport)
-#endif // WINDRIVES_EXPORTS
 
-class WINDRIVES_API Volume
+typedef unsigned long ulint;
+
+class Volume
 {
 public:
-	explicit Volume(const wchar_t* root_path,
-					const wchar_t* volume_name,
-					const unsigned long int serial_number,
-					const unsigned long int max_component_len,
-					const unsigned long int fs_flags,
-					const wchar_t* fs_name) noexcept;
+	explicit Volume(const LPWSTR root_path,
+					const LPWSTR volume_name,
+					LPDWORD serial_number,
+					LPDWORD max_component_len,
+					LPDWORD fs_flags,
+					const LPWSTR fs_name,
+					const wchar_t* drive_type) noexcept;
+
+
 	Volume(const Volume&) noexcept;
 	Volume(Volume&&) noexcept;
 
@@ -27,19 +29,23 @@ public:
 
 	~Volume() noexcept {};
 
-	std::wstring rootPath() const noexcept;
-	std::wstring volumeName() const noexcept;
-	uint64_t serialNumber() const noexcept;
-	uint64_t maxComponentLength() const noexcept;
-	uint64_t fileSystemFlags() const noexcept;
-	std::wstring fileSystemName() const noexcept;
+	const wchar_t* rootPath() const noexcept;
+	const wchar_t* volumeName() const noexcept;
+	const ulint serialNumber() const noexcept;
+	const ulint maxComponentLength() const noexcept;
+	const ulint fileSystemFlags() const noexcept;
+	const wchar_t* fileSystemName() const noexcept;
+	const wchar_t* driveType() const noexcept;
+
+	const void printInfo() const noexcept;
 
 private:
-	std::wstring root_path;
-	std::wstring volume_name;
-	uint64_t serial_number;
-	uint64_t max_component_len;
-	uint64_t file_system_flags;
-	std::wstring file_system_name;
+	wchar_t* root_path;
+	wchar_t* volume_name;
+	ulint serial_number;
+	ulint max_component_len;
+	ulint file_system_flags;
+	wchar_t* file_system_name;
+	const wchar_t* drive_type;
 };
 

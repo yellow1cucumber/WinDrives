@@ -1,18 +1,12 @@
 #pragma once
 
-#include "pch.h"
-#include <Windows.h>
 #include <string>
+#include <Windows.h>
+#include <exception>
+#include <cstdlib>
 
 
-#ifdef WINDRIVES_EXPORTS
-#define WINDRIVES_API __declspec(dllexport)
-#else 
-#define WINDRIVES_API __declspec(dllimport)
-#endif // WINDRIVES_EXPORTS
-
-
-class WINDRIVES_API DriveException {
+class DriveException {
 public:
 	explicit DriveException(const DWORD error_code) noexcept
 		: error_code{ error_code } {};
@@ -46,12 +40,10 @@ protected:
 	DWORD error_code{ NULL };
 };
 
-class WINDRIVES_API BadDriveSearch : public DriveException {
+class BadDriveSearch : public DriveException {
 public:
 	explicit BadDriveSearch(const DWORD error_code, const wchar_t* error_description) noexcept : 
-		DriveException{ error_code }, error_description { std::wstring{ error_description } } {};
-	explicit BadDriveSearch(const DWORD error_code, const char* error_description) noexcept:
-		DriveException{ error_code }, error_description{ str2wstr(error_description) }{};
+		DriveException{ error_code }, error_description { error_description } {};
 
 	BadDriveSearch(const BadDriveSearch& other) noexcept : 
 		DriveException{ other.error_code }, error_description{ other.error_description }
@@ -61,7 +53,7 @@ public:
 		DriveException{ other.error_code }, error_description{ other.error_description }
 	{
 		other.error_code = NULL;
-		other.error_description = std::wstring{ L"moved" };
+		other.error_description = nullptr;
 	};
 
 	BadDriveSearch& operator=(const BadDriveSearch& other) noexcept {
@@ -79,20 +71,14 @@ public:
 		this->error_code = other.error_code;
 		this->error_description = other.error_description;
 		other.error_code = NULL;
-		other.error_description = std::wstring{ L"moved" };
+		other.error_description = nullptr;;
 		return *this;
 	};
 
-	~BadDriveSearch() noexcept {};
+	~BadDriveSearch() noexcept {
+		delete error_description;
+	};
+
 private:
-	std::wstring error_description{ NULL };
-
-	std::wstring str2wstr(const std::string& string) const noexcept {
-		return std::wstring{ string.begin(), string.end() };
-	};
-
-	std::wstring str2wstr(const char* chars) const noexcept {
-		std::string string{ chars };
-		return std::wstring{ string.begin(), string.end() };
-	};
+	const wchar_t* error_description;
 };
