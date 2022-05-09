@@ -3,19 +3,19 @@
 
 typedef unsigned long ulint;
 
-Volume::Volume(	const LPWSTR root_path,
-				const LPWSTR volume_name,
-				LPDWORD serial_number,
-				LPDWORD max_component_len,
-				LPDWORD fs_flags,
-				const LPWSTR fs_name,
+Volume::Volume( LPWSTR root_path,
+				LPWSTR volume_name,
+				DWORD serial_number,
+				DWORD max_component_len,
+				DWORD fs_flags,
+				LPWSTR fs_name,
 				const wchar_t* drive_type) noexcept :
 
 	root_path{root_path},
 	volume_name{volume_name},
-	serial_number{*serial_number},
-	max_component_len{*max_component_len},
-	file_system_flags{*fs_flags},
+	serial_number{serial_number},
+	max_component_len{max_component_len},
+	file_system_flags{fs_flags},
 	file_system_name{fs_name},
 	drive_type{drive_type}
 {}
@@ -104,13 +104,9 @@ bool Volume::operator==(const Volume& other) noexcept {
 Volume::~Volume() noexcept {
 	root_path = nullptr;
 	volume_name = nullptr;
-	serial_number = 0;
-	max_component_len = 0;
-	file_system_flags = 0;
-
-	delete root_path;
-	delete volume_name;
-	delete file_system_name;
+	serial_number = 1;
+	max_component_len = 1;
+	file_system_flags = 1;
 }
 
 
@@ -146,12 +142,12 @@ const wchar_t* Volume::driveType() const noexcept {
 
 // GETTERS END
 
-const void Volume::printInfo() const noexcept {
+void Volume::printInfo() const noexcept {
 	std::wcout << L"Drive name:\t" << volume_name << "\n";
-	std::wcout << L"\t0) Root path:\t\t" << root_path << "\n";
-	std::wcout << L"\t1) Drive type:\t\t" << drive_type << "\n";
+	std::wcout << L"\t0) Root path:\t\t\t" << root_path << "\n";
+	std::wcout << L"\t1) Drive type:\t\t\t" << drive_type << "\n";
 	std::wcout << L"\t2) File system name:\t\t" << file_system_name << "\n";
-	std::wcout << L"\t5) File system flags:\t\t" << file_system_flags << "\n";
-	std::wcout << L"\t3) Serial number:\t\t" << serial_number << "\n";
-	std::wcout << L"\t4) Max component length:\t\t" << max_component_len << "\n\n";
+	std::wcout << L"\t3) File system flags:\t\t" << file_system_flags << "\n";
+	std::wcout << L"\t4) Serial number:\t\t" << serial_number << "\n";
+	std::wcout << L"\t5) Max component length:\t" << max_component_len << "\n\n";
 }

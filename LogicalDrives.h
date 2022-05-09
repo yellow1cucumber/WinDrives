@@ -5,6 +5,7 @@
 #include <iostream>
 
 #include "Volume.h"
+#include "drivesExceptions.h"
 
 #ifdef WINDRIVES_EXPORTS
 #define WINDRIVES_API __declspec(dllexport)
@@ -15,7 +16,7 @@
 class WINDRIVES_API LogicalDrives
 {
 public:
-	LogicalDrives() noexcept;
+	LogicalDrives();
 	~LogicalDrives() noexcept;
 
 	LogicalDrives(const LogicalDrives&) = delete;

@@ -4,6 +4,8 @@
 #include <Windows.h>
 #include <exception>
 #include <cstdlib>
+#include <stdlib.h>
+#include <wchar.h>
 
 #ifdef WINDRIVES_EXPORTS
 #define WINDRIVES_API __declspec(dllexport)
@@ -11,17 +13,21 @@
 #define WINDRIVES_API __declspec(dllimport)
 #endif // WINDRIVES_DLL
 
-class WINDRIVES_API DriveException {
+
+class WINDRIVES_API DriveException{
 public:
-	explicit DriveException(const DWORD error_code) noexcept
-		: error_code{ error_code } {};
+	explicit DriveException(const DWORD error_code, const wchar_t* error_description) noexcept :
+		error_code{ error_code }, error_description { error_description } {};
 
 	DriveException(const DriveException& other) noexcept :
-		error_code{ other.error_code } {};
+		error_code{other.error_code}, error_description{other.error_description}
+	{};
 
 	DriveException(DriveException&& other) noexcept :
-		error_code{ other.error_code } {
+		error_code{ other.error_code }, error_description{ other.error_description }
+	{
 		other.error_code = NULL;
+		other.error_description = nullptr;
 	};
 
 	DriveException& operator=(const DriveException& other) noexcept {
@@ -29,47 +35,10 @@ public:
 			return *this;
 		};
 		this->error_code = other.error_code;
-		return *this;
-	};
-	DriveException& operator=(DriveException&& other) noexcept {
-		if (this == &other) {
-			return *this;
-		};
-		this->error_code = other.error_code;
-		return *this;
-	};
-
-	~DriveException() noexcept {};
-
-protected:
-	DWORD error_code{ NULL };
-};
-
-class WINDRIVES_API BadDriveSearch : public DriveException {
-public:
-	explicit BadDriveSearch(const DWORD error_code, const wchar_t* error_description) noexcept : 
-		DriveException{ error_code }, error_description { error_description } {};
-
-	BadDriveSearch(const BadDriveSearch& other) noexcept : 
-		DriveException{ other.error_code }, error_description{ other.error_description }
-	{};
-
-	BadDriveSearch(BadDriveSearch&& other) noexcept :
-		DriveException{ other.error_code }, error_description{ other.error_description }
-	{
-		other.error_code = NULL;
-		other.error_description = nullptr;
-	};
-
-	BadDriveSearch& operator=(const BadDriveSearch& other) noexcept {
-		if (this == &other) {
-			return *this;
-		};
-		this->error_code = other.error_code;
 		this->error_description = other.error_description;
 		return *this;
 	};
-	BadDriveSearch& operator=(BadDriveSearch&& other) noexcept {
+	DriveException& operator=(DriveException&& other) noexcept {
 		if (this == &other) {
 			return *this;
 		};
@@ -80,10 +49,20 @@ public:
 		return *this;
 	};
 
-	~BadDriveSearch() noexcept {
-		delete error_description;
+	~DriveException() noexcept {
+		error_description = nullptr;
+	};
+
+	const wchar_t* ErrorText() const {
+		wchar_t code[60];
+		const wchar_t* separator{ L": " };
+		_ultow_s( static_cast<unsigned long>(error_code), code, 20, 10);
+		wcscat_s(code, separator);
+		wcscat_s(code, error_description);
+		return code;
 	};
 
 private:
-	const wchar_t* error_description;
+	DWORD error_code;
+	const wchar_t* error_description{ nullptr };
 };

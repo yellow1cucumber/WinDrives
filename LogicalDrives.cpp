@@ -1,9 +1,13 @@
 #include "pch.h"
 #include "LogicalDrives.h"
 
-
-LogicalDrives::LogicalDrives() noexcept {
-	findDrives();
+LogicalDrives::LogicalDrives() {
+	//try {
+		findDrives();
+	//}
+	//catch (const DriveException& ex) {
+		//throw ex;
+	//}
 }
 
 LogicalDrives::~LogicalDrives() noexcept {
@@ -18,38 +22,39 @@ void LogicalDrives::printInfo() {
 
 void LogicalDrives::findDrives() {
 
-	LPWSTR buffer[MAX_PATH];
-	DWORD drive_strings{ GetLogicalDriveStringsW(ARRAYSIZE(buffer)-1, *buffer) };
+	LPWSTR drives{ reinterpret_cast<LPWSTR>(malloc(MAX_PATH)) };
+	DWORD drive_strings{ GetLogicalDriveStringsW(MAX_PATH, drives) };
 	if (drive_strings == 0) {
-		DWORD error{ std::move(GetLastError()) };
-		std::wcout << error << "\n";
-		throw error;
+		throw DriveException(GetLastError(), L"Drives not found");
 	};
 
-	for (LPWSTR drive_root_path : buffer) {
+	for (int iter = 0; iter < MAX_PATH; iter = iter + 4) {
+		LPWSTR root_path{&drives[iter]};
+		LPWSTR volume_name{ reinterpret_cast<LPWSTR>(malloc(MAX_PATH)) };
+		DWORD serial_number;
+		DWORD max_component_len;
+		DWORD fs_flags;
+		LPWSTR fs_name{ reinterpret_cast<LPWSTR>(malloc(MAX_PATH))};
 
-		LPWSTR volume_name[MAX_PATH];
-		LPDWORD serial_number = nullptr;
-		LPDWORD max_component_len = nullptr;
-		LPDWORD fs_flags = nullptr;
-		LPWSTR fs_name[MAX_PATH];
-
-		if (GetVolumeInformationW(	drive_root_path,
-									*volume_name, 
-									ARRAYSIZE(volume_name) - 1, 
-									serial_number, 
-									max_component_len, 
-									fs_flags, 
-									*fs_name, 
-									ARRAYSIZE(fs_name) - 1)) 
+		if (GetVolumeInformationW(
+			root_path,
+			volume_name,
+			MAX_PATH,
+			&serial_number,
+			&max_component_len,
+			&fs_flags,
+			fs_name,
+			MAX_PATH))
 		{
-			UINT drive_type_code{ GetDriveTypeW(drive_root_path) };
-
-			const Volume vol{ drive_root_path, *volume_name, serial_number, max_component_len, fs_flags, *fs_name, detectDriveType(drive_type_code)};
+			UINT drive_type_code{ GetDriveTypeW(root_path) };
+			const Volume vol{ root_path, volume_name, serial_number, max_component_len, fs_flags, fs_name, detectDriveType(drive_type_code) };
 			DRIVES.push_back(vol);
-		};
+		}
+		//else {
+			//throw DriveException(GetLastError(), L"Can not get information about drive");
+		//};
 	}
-}
+};
 
 const wchar_t* LogicalDrives::detectDriveType(const UINT drive_type_code) {
 	return types[drive_type_code].c_str();
